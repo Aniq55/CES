@@ -1,5 +1,26 @@
 import numpy as np
 import itertools
+import logging
+
+
+def create_logger(name, log_file, level):
+    # Create a custom logger for each log file
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    
+    # Create a file handler for the logger
+    handler = logging.FileHandler(log_file)
+    handler.setLevel(level)
+    
+    # Create a formatter and set it for the handler
+    formatter = logging.Formatter('%(message)s')
+    handler.setFormatter(formatter)
+    
+    # Add the handler to the logger
+    if not logger.handlers:  # Avoid adding multiple handlers in repeated calls
+        logger.addHandler(handler)
+    
+    return logger
 
 def sigmoid(x):
     return 1.0/(1 + np.exp(-x))
@@ -87,7 +108,7 @@ def ESG(Theta):
     Alpha = Theta['Alpha']
     Beta = Theta['Beta']
     Gamma = Theta['Gamma']
-    T = 1e3
+    T = 1e4
 
     # step 2
     PHI = {}
