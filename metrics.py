@@ -23,7 +23,7 @@ def ATD_half(E_1, E_2):
 
 
 def ATD(E_1, E_2):
-    return ATD_half(E_1, E_2) + ATD_half(E_2, E_1)
+    return 0.5*ATD_half(E_1, E_2) + 0.5*ATD_half(E_2, E_1)
 
 
 # Average Count Difference

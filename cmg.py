@@ -4,7 +4,7 @@ import pickle
 
 # Parameters
 n = 10
-p_0 = 0.4
+p_0 = 0.2
 theta_0 = 3e-5
 mu_0 = 5.5
 sigma_0 = 1
@@ -57,7 +57,7 @@ Theta = {
     'Gamma': Gamma
 }
 
-with open('/home/chri6578/Documents/CES/params/Theta_1.pickle', 'wb') as file:
+with open('/home/chri6578/Documents/CES/params/Theta_2.pickle', 'wb') as file:
     pickle.dump(Theta, file)
 
 

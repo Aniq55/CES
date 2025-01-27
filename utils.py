@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
 import logging
-
+import pandas as pd 
 
 def create_logger(name, log_file, level):
     # Create a custom logger for each log file
@@ -143,3 +143,16 @@ def ESG(Theta):
             t_last[e] = t
             
     return E_all
+
+
+def ES2DF(ES):
+    rows = []
+    for key, values in ES.items():
+        for value in values:
+            rows.append({'event': key, 'timestamp': int(value)})
+
+    df = pd.DataFrame(rows)
+    df = df.sort_values(by='timestamp', ascending=True)
+    df = df.reset_index(drop=True)
+    
+    return df

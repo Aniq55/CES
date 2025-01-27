@@ -46,6 +46,7 @@ t_last = np.zeros((n,))
 
 for (e,t) in T_list:
     # update x_i^t
+    # VERIFY THIS LINE: OK
     s = np.sum( Gamma[e]*np.power(t- t_last, Alpha[e]-1)*np.exp(-(t-t_last)*Beta[e])*(t_last != 0) ) + Eta[e]
     p = sigmoid(s)
     # print(s, p)

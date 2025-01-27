@@ -14,7 +14,7 @@ param_name = "Theta_1"
 with open(f'/home/chri6578/Documents/CES/params/{param_name}.pickle', 'rb') as file:
     Theta = pickle.load(file)
 
-n_iters = int(1e3)
+n_iters = int(500)
 
 for iter_ in tqdm(range(n_iters)):
     E_1 = ESG(Theta)
@@ -24,7 +24,7 @@ for iter_ in tqdm(range(n_iters)):
     # LOG: atd
     ATD_logger.info(f'{atd}')
     
-    for v in np.arange(-2,5,0.5):
+    for v in np.arange(-2,7,0.5):
         tau = np.power(10, v)
         acd = ACD(E_1, E_2, tau)
         # LOG: v, acd
