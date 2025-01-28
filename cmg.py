@@ -3,13 +3,13 @@ import pickle
 
 
 # Parameters
-n = 10
-p_0 = 0.2
-theta_0 = 3e-5
+n = 20
+p_0 = 0.1
+theta_0 = 3e-3
 mu_0 = 5.5
 sigma_0 = 1
 sigma_1 = 1.5
-sigma_2 = 0.7
+sigma_2 = 1e2
 
 
 # step 1
@@ -31,8 +31,8 @@ for i in range(n):
 
 # step 5
 Eta = np.zeros((n,1))
-for i in range(n):
-    Eta[i] = np.random.normal(0, sigma_1**2)
+# for i in range(n):
+#     Eta[i] = np.random.normal(0, sigma_1**2)
 
 
 # steps 6-10
@@ -57,7 +57,7 @@ Theta = {
     'Gamma': Gamma
 }
 
-with open('/home/chri6578/Documents/CES/params/Theta_2.pickle', 'wb') as file:
+with open('/home/chri6578/Documents/CES/params/Theta_5.pickle', 'wb') as file:
     pickle.dump(Theta, file)
 
 
