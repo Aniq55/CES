@@ -156,3 +156,39 @@ def ES2DF(ES):
     df = df.reset_index(drop=True)
     
     return df
+
+# Causal discovery
+def estimate(PHI, E_all, tau_bar, n):
+
+    Y0 = np.zeros((n, 2**n))
+    Y1 = np.zeros((n, 2**n))
+
+    for i in tqdm(range(n)):
+        for t in PHI[i]:
+            z = np.zeros((n,))
+            for j in range(n):
+                z[j] = np.sum((E_all[j] > t - tau_bar)*(E_all[j] < t)) > 0
+                
+            if t in E_all[i]:
+                Y1[i][int(z.T @ pow2)] +=1
+            else:
+                Y0[i][int(z.T @ pow2)] +=1
+                
+    Y_sum = Y0 + Y1 
+
+    P1 = Y1 / Y_sum
+
+    # check impact of j on i
+    A_est = np.zeros((n,n))
+
+    for i in range(n):
+        for j in range(n):
+            effect = []
+            for k in range(2**n):
+                if k & (1 << j) == 0:
+                    # j is present
+                    effect.append(P1[i][k+pow2[j]]- P1[i][k])
+            if np.isnan(np.nanmean(effect)) == 0:
+                A_est[i][j] = np.nanmean(effect)
+                
+    return A_est 
