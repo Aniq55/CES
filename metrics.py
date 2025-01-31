@@ -66,3 +66,14 @@ def OD(E_1, E_2, k):
     p_2 = order_prob_vector(strip_time(E_2), n, k)
     
     return np.sum(np.abs(p_1 - p_2))
+
+# causal discovery accuracy
+def accuracy(A_est, Gamma, n):
+    return 1 - np.sum(np.abs(np.double(np.abs(A_est) > 0 ) - np.double( Gamma != 0 )))/(n*n)
+
+# causal discovery sign accuracy
+def sign_accuracy(A_est, Gamma):
+    W = np.sign(A_est)*np.sign(Gamma)
+    if np.sum(np.abs(A_est) > 0) > 0:
+        return np.sum(W == 1)/np.sum(np.abs(A_est) > 0)
+    return 0
