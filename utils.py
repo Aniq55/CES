@@ -332,3 +332,82 @@ def estimate(PHI, E_all, tau_bar, n):
                 A_est[i][j] = np.nanmean(effect)
                 
     return A_est 
+
+
+def search(E_all, tau_bar, n):
+    
+    T_all = sorted([elem for sublist in E_all.values() for elem in sublist])
+
+    pow2 = np.power(2, np.arange(n))
+
+    Z_exists = np.zeros((2**n,1))
+
+    for t in tqdm(T_all):
+        z = np.zeros((n,))
+        for j in range(n):
+            z[j] = np.sum((E_all[j] > t - tau_bar)*(E_all[j] < t)) > 0
+        Z_exists[int(z.T @ pow2)] = 1
+        
+    return Z_exists
+
+
+def search_(E_all, tau_bar, n, k):
+    binary_str = bin(k)[2:].zfill(n)
+    binary_array = np.array([int(bit) for bit in binary_str], dtype=np.int8)
+    
+    T_all = sorted([elem for sublist in E_all.values() for elem in sublist])
+    
+    for t in T_all:
+        z = np.zeros((n,))
+        for j in range(n):
+            z[j] = np.sum((E_all[j] > t - tau_bar)*(E_all[j] < t)) > 0
+        
+        if np.linalg.norm(binary_array - z)==0:
+            return True 
+        
+    return False
+
+
+def estimate_(E_all, tau_bar, n):
+    
+    pow2 = np.power(2, np.arange(n))
+    
+    Y1 = {}
+    for i in range(n):
+        Y1[i] = {}
+    
+
+    for i in tqdm(range(n)):
+        for t in E_all[i]:
+            z = np.zeros((n,))
+            for j in range(n):
+                z[j] = np.sum((E_all[j] > t - tau_bar)*(E_all[j] < t)) > 0
+            
+            Y1[i][int(z.T @ pow2)] = 1
+
+    # check impact of j on i
+    A_est = np.zeros((n,n))
+
+    for i in tqdm(range(n)):
+        for j in range(n):
+            effect = []
+            # for k in range(2**n):
+            L = list(Y1[i].keys())
+            for k in L:
+                if k & (1 << j) == 0:
+                        
+                    if search_(E_all, tau_bar, n, k+pow2[j]) and search_(E_all, tau_bar, n, k+pow2[j]):
+                        if k+pow2[j] not in Y1[i]:
+                            Y1[i][k+pow2[j]] = 0
+                            
+                        if k not in Y1[i]:
+                            Y1[i][k] = 0
+                        
+                        effect.append(Y1[i][k+pow2[j]]- Y1[i][k])
+                        
+            if np.isnan(np.nanmean(effect)) == 0:
+                A_est[i][j] = np.nanmean(effect)
+                
+    return A_est 
+
+# Idea: The search_ operation can be performed once and saved as a dictionary (per node)
