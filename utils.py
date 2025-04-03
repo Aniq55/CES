@@ -357,12 +357,13 @@ def search_(E_all, tau_bar, n, k):
     
     T_all = sorted([elem for sublist in E_all.values() for elem in sublist])
     
-    for t in T_all:
+    for t in tqdm(T_all):
         z = np.zeros((n,))
         for j in range(n):
             z[j] = np.sum((E_all[j] > t - tau_bar)*(E_all[j] < t)) > 0
         
         if np.linalg.norm(binary_array - z)==0:
+            print('done')
             return True 
         
     return False
@@ -388,6 +389,9 @@ def estimate_(E_all, tau_bar, n):
     # check impact of j on i
     A_est = np.zeros((n,n))
 
+    
+    c = 0
+    C = []
     for i in tqdm(range(n)):
         for j in range(n):
             effect = []
@@ -395,8 +399,13 @@ def estimate_(E_all, tau_bar, n):
             L = list(Y1[i].keys())
             for k in L:
                 if k & (1 << j) == 0:
+                    
+                    c+=2
+                    
+                    C.append(k+pow2[j])
+                    C.append(k)
                         
-                    if search_(E_all, tau_bar, n, k+pow2[j]) and search_(E_all, tau_bar, n, k+pow2[j]):
+                    if search_(E_all, tau_bar, n, k+pow2[j]) and search_(E_all, tau_bar, n, k):
                         if k+pow2[j] not in Y1[i]:
                             Y1[i][k+pow2[j]] = 0
                             
@@ -408,6 +417,68 @@ def estimate_(E_all, tau_bar, n):
             if np.isnan(np.nanmean(effect)) == 0:
                 A_est[i][j] = np.nanmean(effect)
                 
+    K = list(set(C))
+    
+    
+                
+    print(c, len(set(C)))
     return A_est 
 
 # Idea: The search_ operation can be performed once and saved as a dictionary (per node)
+# even performing it once is quite expensive.
+
+# import numpy as np
+# from collections import defaultdict
+# from tqdm import tqdm
+
+# def search_(E_all, tau_bar, n, k, T_all_set):
+#     """ Optimized search function with set lookup for faster performance. """
+#     binary_array = np.unpackbits(np.array([k], dtype=np.uint8).view(np.uint8), bitorder='big')[-n:]
+    
+#     for t in T_all_set:
+#         z = np.zeros(n, dtype=np.int8)
+#         for j in range(n):
+#             z[j] = np.any((E_all[j] > t - tau_bar) & (E_all[j] < t))
+        
+#         if np.array_equal(binary_array, z):
+#             return True
+#     return False
+
+
+# def estimate_(E_all, tau_bar, n):
+#     pow2 = 1 << np.arange(n)  # Faster than 2**np.arange(n)
+    
+#     Y1 = [defaultdict(int) for _ in range(n)]
+    
+#     # Precompute T_all as a set for fast lookup
+#     T_all_set = {t for sublist in E_all.values() for t in sublist}
+
+#     for i in tqdm(range(n)):
+#         for t in E_all[i]:
+#             z = np.zeros(n, dtype=np.int8)
+#             for j in range(n):
+#                 z[j] = np.any((E_all[j] > t - tau_bar) & (E_all[j] < t))
+            
+#             Y1[i][np.dot(z, pow2)] = 1
+
+#     # Estimate adjacency matrix
+#     A_est = np.zeros((n, n))
+
+#     for i in tqdm(range(n)):
+#         for j in range(n):
+#             effect = []
+#             keys_list = list(Y1[i].keys())
+            
+#             for k in keys_list:
+#                 if not (k & (1 << j)):  # If bit j is not set
+                    
+#                     k_j = k + pow2[j]  # Set bit j
+#                     if search_(E_all, tau_bar, n, k_j, T_all_set) and search_(E_all, tau_bar, n, k, T_all_set):
+                        
+#                         effect.append(Y1[i].get(k_j, 0) - Y1[i].get(k, 0))
+            
+#             mean_effect = np.nanmean(effect)
+#             if not np.isnan(mean_effect):
+#                 A_est[i, j] = mean_effect
+
+#     return A_est
